@@ -7,7 +7,6 @@ from config import TOKEN
 bot = commands.Bot(intents=disnake.Intents.all())
 
 
-
 @bot.event
 async def on_ready():
     print("Бот готов!")
@@ -16,18 +15,6 @@ async def on_ready():
 @bot.slash_command()
 async def ping(inter: ApplicationCommandInteraction):
     await inter.response.send_message("Понг!")
-
-
-# @bot.slash_command()
-# async def server(inter: ApplicationCommandInteraction):
-#     await inter.response.send_message(
-#         f"Название сервера: {inter.guild.name}\nВсего участников: {inter.guild.members}"
-#     )
-
-
-# @bot.slash_command()
-# async def user(inter: ApplicationCommandInteraction):
-#     await inter.response.send_message(f"Ваш тег: {inter.author}\nВаш ID: {inter.author.id}")
 
 
 @bot.event
