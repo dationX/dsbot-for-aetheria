@@ -1,10 +1,12 @@
 import disnake
 from disnake.ext import commands
-from disnake import ApplicationCommandInteraction
+from disnake import ApplicationCommandInteraction, Member
 
 from config import TOKEN
 
-bot = commands.Bot(test_guilds=[1369024871601930330], intents=disnake.Intents.all())
+bot = commands.Bot(intents=disnake.Intents.all())
+
+
 
 @bot.event
 async def on_ready():
@@ -16,21 +18,47 @@ async def ping(inter: ApplicationCommandInteraction):
     await inter.response.send_message("Понг!")
 
 
-@bot.slash_command()
-async def server(inter: ApplicationCommandInteraction):
-    await inter.response.send_message(
-        f"Название сервера: {inter.guild.name}\nВсего участников: {inter.guild.members}"
+# @bot.slash_command()
+# async def server(inter: ApplicationCommandInteraction):
+#     await inter.response.send_message(
+#         f"Название сервера: {inter.guild.name}\nВсего участников: {inter.guild.members}"
+#     )
+
+
+# @bot.slash_command()
+# async def user(inter: ApplicationCommandInteraction):
+#     await inter.response.send_message(f"Ваш тег: {inter.author}\nВаш ID: {inter.author.id}")
+
+
+@bot.event
+async def on_member_join(member: Member):
+    channel: disnake.TextChannel = bot.get_channel(1369025854809833482)
+    channel2: disnake.TextChannel = bot.get_channel(1370393239789633556)
+
+    embed = disnake.Embed(
+        title="Новый участник присоединился к серверу!",
+        description=
+f"""
+{member.mention},
+Подавай заявку на игрока проекта Aetheria в {channel2.mention}
+""",
+        color=0xffffff
     )
 
-
-@bot.slash_command()
-async def user(inter: ApplicationCommandInteraction):
-    await inter.response.send_message(f"Ваш тег: {inter.author}\nВаш ID: {inter.author.id}")
+    await channel.send(embed=embed)
 
 
-@bot.event()
-async def on_member_join(member):
-    # role = await disnake.utils.get(guild_id=member.guild.id, role_id=...)
-    pass
+@bot.event
+async def on_member_remove(member: Member):
+    channel: disnake.TextChannel = bot.get_channel(1369025854809833482)
+
+    embed = disnake.Embed(
+        title="Участник покинул сервер...",
+        description=f"{member.mention}",
+        color=0xffffff
+    )
+
+    await channel.send(embed=embed)
+
 
 bot.run(TOKEN)    
