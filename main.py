@@ -2,9 +2,11 @@ import disnake
 from disnake.ext import commands
 from disnake import ApplicationCommandInteraction, Member
 
+import asyncio
+
 from config import TOKEN
 
-bot = commands.Bot(intents=disnake.Intents.all())
+bot = commands.Bot(intents=disnake.Intents.all(), command_prefix="/")
 
 
 @bot.event
@@ -12,7 +14,7 @@ async def on_ready():
     print("Бот готов!")
 
 
-@bot.slash_command()
+@bot.command(name="ping", usage="/ping")
 async def ping(inter: ApplicationCommandInteraction):
     await inter.response.send_message("Понг!")
 
@@ -47,5 +49,10 @@ async def on_member_remove(member: Member):
 
     await channel.send(embed=embed)
 
+
+@bot.command(name="clear", usage="/clear [amount]")
+async def clear(inter: ApplicationCommandInteraction, amount):
+    await inter.channel.purge(limit=int(amount)+1)
+    
 
 bot.run(TOKEN)    
