@@ -33,5 +33,4 @@ async def on_member_join(member):
     # role = await disnake.utils.get(guild_id=member.guild.id, role_id=...)
     pass
 
-
 bot.run(TOKEN)    
