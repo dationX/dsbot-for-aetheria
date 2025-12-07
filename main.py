@@ -42,7 +42,7 @@ class Ticket(disnake.ui.Modal):
 
         channel_help = await inter.guild.create_text_channel(name=f"Поддержка {inter.author}", category=category, overwrites=overwrites)
 
-        embed = disnake.Embed(title=f"Обращение в поддержку")
+        embed = disnake.Embed(title=f"Обращение в поддержку", color=0xffffff)
 
         role: disnake.Role = inter.guild.get_role(1369033075392118855)
 
@@ -53,16 +53,15 @@ class Ticket(disnake.ui.Modal):
                 inline=False,
             )
 
-        await channel_help.send(
-f"""
-Уважаемый игрок: {inter.author.mention}, дождитесь ответа администрации проекта,
-также для удобности оказания вам поддержки приложите сообщениями ниже медиа-контент
-с вашей проблемой. Если проблема решена или потеряла актуальность, то нажмите на кнопку ниже.
+        embed2 = disnake.Embed(
+            title="> 👀 // Уважаемый игрок!",
+            description=f"{inter.author.mention}, дождитесь ответа администрации. Для удобности оказания Вам поддержки приложите сообщениями ниже медиа-файлы с Вашей проблемой. Если проблема решена, то нажмите на кнопку ниже.*",
+            color=0xffffff
+        )
 
-Пинг Администрации проекта: {role.mention}
-""", embed=embed, view=Button_Help_ForAdmin())
-
-        await inter.response.send_message("Обращение успешно создано!", ephemeral=True)
+        await channel_help.send(embeds=[embed2, embed], view=Button_Help_ForAdmin())
+        await channel_help.send(f"*Пинг Администрации: {role.mention}*")
+        await inter.response.send_message("*Обращение успешно создано!*", ephemeral=True)
 
 class Ticket_Join(disnake.ui.Modal):
     """Окно подачи заявки на игру"""
@@ -105,9 +104,9 @@ class Ticket_Join(disnake.ui.Modal):
             inter.author: disnake.PermissionOverwrite(read_messages=True)
         }
 
-        channel_help = await inter.guild.create_text_channel(name=f"Поддержка {inter.author}", overwrites=overwrites)
+        channel_help = await inter.guild.create_text_channel(name=f"Заявка игрок {inter.author}", overwrites=overwrites)
 
-        embed = disnake.Embed(title=f"Заявка на игрока")
+        embed = disnake.Embed(title=f"Заявка на игрока", color=0xffffff)
 
         role: disnake.Role = inter.guild.get_role(1369033075392118855)
 
@@ -117,15 +116,16 @@ class Ticket_Join(disnake.ui.Modal):
                 value=value[:1024],
                 inline=False,
             )
+        embed2 = disnake.Embed(
+            title="> 👀 // Уважаемый игрок!",
+            description=f"*{inter.author.mention}, дождитесь ответа администрации проекта.*",
+            color=0xffffff
+        )
 
-        await channel_help.send(
-f"""
-Уважаемый игрок, {inter.author.mention}, дождитесь ответа администрации проекта.
+        await channel_help.send(embeds=[embed, embed2])
+        await channel_help.send(f"*Пинг администрации: {role.mention}*")
 
-Пинг Администрации проекта: {role.mention}
-""", embed=embed, view=Button_Help_ForAdmin())
-
-        await inter.response.send_message("Обращение успешно создано!", ephemeral=True)
+        await inter.response.send_message("*Заявка успешно создана!*", ephemeral=True)
 
 class Button_Help(disnake.ui.View):
     """Кнопка button_help"""
@@ -154,6 +154,43 @@ class Button_Help_ForAdmin(disnake.ui.View):
     @disnake.ui.button(label="Завершить оказание поддержки", style=disnake.ButtonStyle.red)
     async def delete(self, button: disnake.ui.Button, inter: disnake.MessageCommandInteraction):
         await inter.channel.delete()
+
+class Button_Join_Admin(disnake.ui.View):
+    """Кнопки в окне подачи заявки"""
+
+    def __init__(self):
+        super().__init__(timeout=None)
+    
+    @disnake.ui.button(label="Одобрить заявку ✅", style=disnake.ButtonStyle.green)
+    async def agree(self, button: disnake.ui.Button, inter: disnake.MessageCommandInteraction):
+        role = inter.guild.get_role(1369033075392118855)
+
+        if role in {inter.user.roles}:
+            embed = disnake.Embed(
+                title="> ✅ // Ваша заявка одобрена!",
+                description=f">>> Уважаемый игрок, дождитесь, когда администрация проекта добавит Вас в вайтлист. Заявку одобрил: {inter.user.mention}",
+                color=0xffffff
+            )
+            await inter.channel.send(embed=embed)
+            await inter.channel.send(f"{role.mention}, добавьте игрока в вайтлист!")
+        else:
+            await inter.response("У вас нет прав на использовании данной кнопки :(")
+
+    @disnake.ui.button(label="Отклонить заявку ❌", style=disnake.ButtonStyle.red)
+    async def agree(self, button: disnake.ui.Button, inter: disnake.MessageCommandInteraction):
+        role = inter.guild.get_role(1369033075392118855)
+        help_channel = inter.guild.get_channel(1446872071685673032)
+
+        if role in {inter.user.roles}:
+            embed = disnake.Embed(
+                title="> ❌ // Ваша заявка отклонена!",
+                description=f">>> Уважаемый игрок, ваша заявка некорректна для игры на нашем сервере. Если у Вас вопросы по оцениваю Вашей заявки, то напишите ниже Вашу жалобу, иначе обратитесь в {help_channel.mention}. Заявку отклонил: {inter.user.mention}",
+                color=0xffffff
+            )
+
+            await inter.channel.send(embed=embed)
+        else:
+            await inter.response("У вас нет прав на использовании данной кнопки :(")
 
 
 @bot.event
@@ -205,7 +242,7 @@ async def button(inter: ApplicationCommandInteraction):
     view = Button_Help()
 
     embed = disnake.Embed(
-        title="> Поддержка",
+        title="> 🆘 // Поддержка",
         description=
 """
 >>> Если у Вас возникли какие-то проблемы, при игре на нашем сервере, то сделайте обращение в поддержку нашего сервера, нажав на кнопку снизу.
@@ -222,7 +259,7 @@ async def button_join(inter: ApplicationCommandInteraction):
     view = Button_Join()
 
     embed = disnake.Embed(
-        title="> Подача заявки на игру",
+        title="> ✅ // Подача заявки на игру",
         description=
 """
 >>> Если Вы хотите начать игру на нашем сервере, то Вам стоит подать заявку с помощью кнопки снизу. Удачной игры ❤️!
@@ -232,8 +269,6 @@ async def button_join(inter: ApplicationCommandInteraction):
 
     await inter.channel.send(embed=embed, view=view)
 
-
-    
 
 if __name__ == "__main__":
     bot.run(TOKEN)    
