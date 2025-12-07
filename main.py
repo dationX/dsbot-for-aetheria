@@ -86,7 +86,7 @@ class Ticket_Join(disnake.ui.Modal):
                 label="Какие у Вас планы на сервер? Какие цели?",
                 custom_id="Цель и планы",
                 style=TextInputStyle.paragraph,
-                min_length=64
+                min_length=32
             )
         ]
 
@@ -122,7 +122,7 @@ class Ticket_Join(disnake.ui.Modal):
             color=0xffffff
         )
 
-        await channel_help.send(embeds=[embed, embed2])
+        await channel_help.send(embeds=[embed, embed2], view=Button_Join_Admin())
         await channel_help.send(f"*Пинг администрации: {role.mention}*")
 
         await inter.response.send_message("*Заявка успешно создана!*", ephemeral=True)
@@ -164,35 +164,32 @@ class Button_Join_Admin(disnake.ui.View):
     @disnake.ui.button(label="Одобрить заявку ✅", style=disnake.ButtonStyle.green)
     async def agree(self, button: disnake.ui.Button, inter: disnake.MessageCommandInteraction):
         role = inter.guild.get_role(1369033075392118855)
-
-        if role in {inter.user.roles}:
+        
+        if role in inter.user.roles:
             embed = disnake.Embed(
                 title="> ✅ // Ваша заявка одобрена!",
                 description=f">>> Уважаемый игрок, дождитесь, когда администрация проекта добавит Вас в вайтлист. Заявку одобрил: {inter.user.mention}",
                 color=0xffffff
             )
-            await inter.channel.send(embed=embed)
+            await inter.response.send_message(embed=embed)
             await inter.channel.send(f"{role.mention}, добавьте игрока в вайтлист!")
         else:
-            await inter.response("У вас нет прав на использовании данной кнопки :(")
+            await inter.response.send_message("У вас нет прав на использовании данной кнопки :(", ephemeral=True)
 
     @disnake.ui.button(label="Отклонить заявку ❌", style=disnake.ButtonStyle.red)
-    async def agree(self, button: disnake.ui.Button, inter: disnake.MessageCommandInteraction):
+    async def no_agree(self, button: disnake.ui.Button, inter: disnake.MessageCommandInteraction):
         role = inter.guild.get_role(1369033075392118855)
         help_channel = inter.guild.get_channel(1446872071685673032)
-
-        if role in {inter.user.roles}:
+        if role in inter.user.roles:
             embed = disnake.Embed(
                 title="> ❌ // Ваша заявка отклонена!",
                 description=f">>> Уважаемый игрок, ваша заявка некорректна для игры на нашем сервере. Если у Вас вопросы по оцениваю Вашей заявки, то напишите ниже Вашу жалобу, иначе обратитесь в {help_channel.mention}. Заявку отклонил: {inter.user.mention}",
                 color=0xffffff
             )
 
-            await inter.channel.send(embed=embed)
+            await inter.response.send_message(embed=embed)
         else:
-            await inter.response("У вас нет прав на использовании данной кнопки :(")
-
-
+            await inter.response.send_message("У вас нет прав на использовании данной кнопки :(", ephemeral=True)
 @bot.event
 async def on_ready():
     print("Bot is ready!")
